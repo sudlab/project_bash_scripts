@@ -1,0 +1,43 @@
+#!/bin/bash
+# First parameter, specify which soft link files to copy to test directory
+
+if [ "$#" -gt 1 ]; then
+  echo "Wrong number of parameters"
+  exit 1
+fi
+
+echo "Copies data from specified directory in first parameter (finish with /)"
+echo "No parameter specified pulls data links from /fastdata/mbp15ja/capturec-pilot/data_softlinks/"
+
+
+# Default directories
+DATA_DIR="/fastdata/mbp15ja/capturec-pilot/test"
+DATABASE_DIR="/shared/sudlab1/General/projects/capturec/test"
+
+# Remove the data dir
+rm -rf "${DATA_DIR}"
+
+# Create data directory
+mkdir -p "${DATA_DIR}"
+
+# Change directory to test to execute renaming from there
+cd $DATA_DIR
+
+# Copy the data files softlinks (no input parameters copies from /fastdata/mbp15ja/capturec-pilot/data_softlinks/)
+if [ $# -eq 0 ]
+	then
+		cp -d /fastdata/mbp15ja/capturec-pilot/data_softlinks/* $DATA_DIR
+	else
+		directory=$1"*"
+		cp -d $directory $DATA_DIR
+fi
+
+# Remove the database dir
+rm -rf "${DATABASE_DIR}"
+
+# Create database directory
+mkdir -p "${DATABASE_DIR}"
+
+echo "******************IMPORTANT*****************"
+echo "If copying/moving test directory to another location, use cp -d"
+

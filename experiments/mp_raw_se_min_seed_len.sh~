@@ -1,0 +1,27 @@
+#!/bin/bash
+# First parameter, input file
+# Second parameter, output file
+# Third parameter, section to match
+# Fourth parameter, beginning of string to match
+match_section=0
+end_read=0
+line_number=1
+
+while IFS='' read -r line || [[ -n "$line" ]] && [[ end_read -eq 0 ]]; do
+	#remove both leading and trailing spaces
+	line_no_whitespace="$(echo -e "${line}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+
+	# If you find the section
+	if [ "$line_no_whitespace" == "$3" ] & [[ match_section -eq 0 ]]; then
+		match_section=1	
+	fi
+
+	# If you are in the appropiate section already
+	if [[ end_read -eq 0 ]] & [[ match_section -eq 1 ]] & [[ $line_no_whitespace =~ ^$4 ]]; then
+		sed "$line_number"s/.*/replacement-line/ $1 > $2
+	fi
+
+	# Add 1 to the line number
+	((line_number=line_number+1))
+		
+done < "$1"

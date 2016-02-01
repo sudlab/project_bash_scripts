@@ -1,0 +1,9 @@
+#!/bin/bash
+while IFS='' read -r line || [[ -n "$line" ]]; do
+	#remove both leading and trailing spaces
+	line_no_whitespace="$(echo -e "${read}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+	echo "*****************$line_no_whitespace******************"
+	if [ "$line_no_whitespace" == "[bwa]" ]; then
+		echo "Found"
+	fi
+done < "$1"
