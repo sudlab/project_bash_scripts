@@ -2,21 +2,44 @@
 # Create a random sample with sample size specified as first parameter
 # Eg. 0.5 = 50% sample size
 
-if [ "$#" -ne 1 ]; then
-  echo "Wrong number of parameters"
+# First parameter, sample size (maintain this for backwards compatibility)
+# Second paramter, input files directory
+# Third parameter, output files directory
+
+if [ "$#" -lt 1 ]; then
+  echo "Wrong number of parameters, at least one parameter needs to be specified"
   exit 1
 fi
 
-echo "Assuming base data files are in /fastdata/mbp15ja/capturec-pilot/data"
+if [ "$#" -gt 1 ]; then
+	if [ "$#" -ne 3 ]; then
+ 		echo "Wrong number of parameters, if more than one parameter is specified, 3 should be specified"
+  		exit 1
+	
+	# 3 arguments
+	else
+		SAMPLE_SIZE=$1
+		INPUT_DIR=$2
+		OUTPUT_DIR=$3
+	fi
+# 1 argument, fill up the other with default values
+else
+	SAMPLE_SIZE=$1
+	INPUT_DIR="/fastdata/mbp15ja/capturec-pilot/data"
+	OUTPUT_DIR="/fastdata/mbp15ja/capturec-pilot/data_sample"
+fi
+
+echo "If no parameter for input files is given, assuming base data files are in /fastdata/mbp15ja/capturec-pilot/data"
+echo "If no parameter for output files is given, assuming output files are stored in /fastdata/mbp15ja/capturec-pilot/data_sample"
 echo "Pair end reads or reads which come in pairs need to be in the format *read1* *read2*"
 
 # Create an empty directory
-mkdir -p /fastdata/mbp15ja/capturec-pilot/data_sample 2>/dev/null
-rm /fastdata/mbp15ja/capturec-pilot/data_sample/* 2>/dev/null
-rm -rf /fastdata/mbp15ja/capturec-pilot/data_sample/* 2>/dev/null
+mkdir -p "${OUTPUT_DIR}" 2>/dev/null
+rm "${OUTPUT_DIR}"/* 2>/dev/null
+rm -rf "${OUTPUT_DIR}"/* 2>/dev/null
 
 # Create a random sample with the sample size specified for each file in data directory
-FILES=/fastdata/mbp15ja/capturec-pilot/data/*
+FILES="${INPUT_DIR}"/*
 for f in $FILES
 do
 
@@ -34,13 +57,13 @@ do
 		# Filename for log (both reads)
 		log_filename="${outnamebasef1/read1/reads}"
 		
-		$(eval "python ~/dev/cgat/scripts/fastq2fastq.py --stdin=$f1 --method=sample --sample-size $1 --seed=1234 --log=/fastdata/mbp15ja/capturec-pilot/data_sample/Sample-$log_filename.log --pair-fastq-file $f2 -F --output-filename-pattern /fastdata/mbp15ja/capturec-pilot/data_sample/Sample-$outnamebasef2 -v 7 -S /fastdata/mbp15ja/capturec-pilot/data_sample/Sample-$outnamebasef1")
+		$(eval "python ~/dev/cgat/scripts/fastq2fastq.py --stdin=$f1 --method=sample --sample-size $1 --seed=1234 --log=${OUTPUT_DIR}/Sample-$log_filename.log --pair-fastq-file $f2 -F --output-filename-pattern ${OUTPUT_DIR}/Sample-$outnamebasef2 -v 7 -S ${OUTPUT_DIR}/Sample-$outnamebasef1")
 
 	fi
 done
 
 
-echo "Data placed in /fastdata/mbp15ja/capturec-pilot/data_sample"
+echo "Data taken from ${INPUT_DIR} placed in ${OUTPUT_DIR}"
 
 
 
